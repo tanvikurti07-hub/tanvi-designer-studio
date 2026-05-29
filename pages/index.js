@@ -1,5 +1,7 @@
+import { useState } from 'react'
+
 export default function TanviDesignerStudio() {
-  const products = [
+  const [products, setProducts] = useState([
     {
       id: 1,
       name: 'Royal Beige Floral Kurti Set',
@@ -16,7 +18,47 @@ export default function TanviDesignerStudio() {
         'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
       colors: ['Green', 'Cream'],
     },
-  ]
+  ])
+
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    price: '',
+    image: '',
+    colors: '',
+  })
+
+  const [showAdminForm, setShowAdminForm] = useState(false)
+
+  const addProduct = () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.image) {
+      alert('Please fill all fields')
+      return
+    }
+
+    const product = {
+      id: Date.now(),
+      name: newProduct.name,
+      price: `₹${newProduct.price}`,
+      image: newProduct.image,
+      colors: newProduct.colors.split(',').map((c) => c.trim()).filter((c) => c),
+    }
+
+    setProducts([product, ...products])
+
+    setNewProduct({
+      name: '',
+      price: '',
+      image: '',
+      colors: '',
+    })
+
+    setShowAdminForm(false)
+    alert('Product added successfully!')
+  }
+
+  const deleteProduct = (id) => {
+    setProducts(products.filter((p) => p.id !== id))
+  }
 
   const sizes = ['M', 'L', 'XL', 'XXL']
 
@@ -38,8 +80,8 @@ export default function TanviDesignerStudio() {
           <a href="#collection" className="hover:text-black transition">
             Collections
           </a>
-          <a href="#new" className="hover:text-black transition">
-            New Arrivals
+          <a href="#admin" className="hover:text-black transition">
+            Admin
           </a>
           <a href="#contact" className="hover:text-black transition">
             Contact
@@ -199,42 +241,141 @@ export default function TanviDesignerStudio() {
         </div>
       </section>
 
-      {/* Admin Dashboard Preview */}
-      <section className="px-8 md:px-20 pb-24">
+      {/* Admin Dashboard */}
+      <section id="admin" className="px-8 md:px-20 pb-24">
         <div className="bg-white rounded-[40px] p-10 shadow-lg">
           <div className="mb-10">
             <p className="uppercase tracking-[0.25em] text-sm text-[#7d2415] mb-3">
               Admin Dashboard
             </p>
 
-            <h3 className="text-4xl mb-4">Manage Your Products Easily</h3>
+            <h3 className="text-4xl mb-4">Manage Your Products</h3>
 
-            <p className="text-gray-600 max-w-2xl">
-              Upload product photos, add color variations, set prices, manage
-              stock, and receive instant order notifications.
+            <p className="text-gray-600 max-w-2xl mb-6">
+              Add new products, manage inventory, and track your store.
             </p>
+
+            <button
+              onClick={() => setShowAdminForm(!showAdminForm)}
+              className="bg-[#7d2415] text-white px-6 py-3 rounded-full hover:opacity-90 transition"
+            >
+              {showAdminForm ? 'Cancel' : '+ Add New Product'}
+            </button>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-[#f7f1ec] p-6 rounded-3xl">
-              <h4 className="text-2xl mb-3">Add Products</h4>
-              <p className="text-gray-600">
-                Upload new kurti collections with images and pricing.
-              </p>
-            </div>
+          {/* Add Product Form */}
+          {showAdminForm && (
+            <div className="bg-[#f7f1ec] p-8 rounded-3xl mb-10">
+              <h4 className="text-2xl mb-6">Add New Product</h4>
 
-            <div className="bg-[#f7f1ec] p-6 rounded-3xl">
-              <h4 className="text-2xl mb-3">Manage Orders</h4>
-              <p className="text-gray-600">
-                Track customer orders and payment confirmations.
-              </p>
-            </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm uppercase tracking-wide mb-2">
+                    Product Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Royal Beige Floral Kurti"
+                    value={newProduct.name}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, name: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 outline-none focus:border-[#7d2415]"
+                  />
+                </div>
 
-            <div className="bg-[#f7f1ec] p-6 rounded-3xl">
-              <h4 className="text-2xl mb-3">Notifications</h4>
-              <p className="text-gray-600">
-                Receive instant alerts for new orders and payments.
-              </p>
+                <div>
+                  <label className="block text-sm uppercase tracking-wide mb-2">
+                    Price (without ₹)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 2499"
+                    value={newProduct.price}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, price: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 outline-none focus:border-[#7d2415]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm uppercase tracking-wide mb-2">
+                    Image URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    value={newProduct.image}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, image: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 outline-none focus:border-[#7d2415]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm uppercase tracking-wide mb-2">
+                    Colors (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Beige, Pink, Gold"
+                    value={newProduct.colors}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, colors: e.target.value })
+                    }
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 outline-none focus:border-[#7d2415]"
+                  />
+                </div>
+
+                <button
+                  onClick={addProduct}
+                  className="w-full bg-[#7d2415] text-white px-6 py-3 rounded-full hover:opacity-90 transition text-lg font-semibold"
+                >
+                  Add Product
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Products List */}
+          <div>
+            <h4 className="text-2xl mb-6">All Products ({products.length})</h4>
+
+            <div className="space-y-4">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-[#f7f1ec] p-6 rounded-3xl flex justify-between items-start"
+                >
+                  <div className="flex gap-6 flex-1">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-20 h-20 rounded-lg object-cover"
+                    />
+                    <div>
+                      <h5 className="text-lg font-semibold mb-2">
+                        {product.name}
+                      </h5>
+                      <p className="text-[#7d2415] font-semibold mb-2">
+                        {product.price}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Colors: {product.colors.join(', ')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => deleteProduct(product.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-full text-sm hover:bg-red-600 transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -287,7 +428,7 @@ export default function TanviDesignerStudio() {
             <ul className="space-y-2 text-gray-600">
               <li>Home</li>
               <li>Collections</li>
-              <li>New Arrivals</li>
+              <li>Admin</li>
               <li>Contact</li>
             </ul>
           </div>
